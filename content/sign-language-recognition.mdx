@@ -1,0 +1,28 @@
+---
+title: "From Webcam to Words: Building a Sign Language Recognition System"
+publishedAt: "2025-12-10"
+author: "Sudharsan"
+summary: "A deep dive into using TensorFlow and OpenCV to recognize hand gestures in real time and convert them into text, making communication more accessible."
+image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=192&fit=crop"
+---
+
+# From Webcam to Words: Building a Sign Language Recognition System
+
+A standard webcam and a trained model are enough to turn hand gestures into text. That sentence took a lot longer to make true than I expected — but getting there taught me more about real-time machine learning than any tutorial could.
+
+## The pipeline
+
+- **Capture**: OpenCV grabs frames and isolates the hand region.
+- **Features**: hand landmarks are extracted so the model learns *shape*, not background.
+- **Classify**: a TensorFlow model maps landmark sequences to letters and words.
+- **Smooth**: predictions are debounced over a short window to avoid flicker.
+
+## The hard parts
+
+- **Lighting and backgrounds** wreck naive models. Landmark-based features fixed most of it.
+- **Transitions between signs** are ambiguous — the model needs temporal context, not single frames.
+- **Latency**: every extra millisecond per frame is visible to the user.
+
+## Wrap-up
+
+The biggest lesson: ~~more data always wins~~ isn't true here — *better* features beat more frames. Building this changed how I think about accessibility in software. It should be the default, not an afterthought.

@@ -1,0 +1,31 @@
+---
+title: "Building MeVo AI: Real-Time Meeting Insights with AI"
+publishedAt: "2026-01-15"
+author: "Sudharsan"
+summary: "How I built an AI-powered meeting assistant that generates live summaries, action items, and insights from Google Meet sessions while improving accessibility through sign-language recognition."
+image: "https://images.unsplash.com/photo-1591115765373-5207764f72e7?w=800&h=192&fit=crop"
+---
+
+# Building MeVo AI: Real-Time Meeting Insights with AI
+
+Most meetings end the same way: everyone agrees on next steps, and within a day half of those steps are forgotten. I built **MeVo AI** to fix that — an assistant that sits inside a Google Meet session and turns conversation into <mark>live summaries, action items, and insights</mark> as people talk.
+
+The harder, and more meaningful, part was accessibility: MeVo also recognizes sign language from the webcam and converts it to text in real time, so deaf and hard-of-hearing participants can take part on equal footing.
+
+## What it does
+
+- **Live summaries** that update as the discussion moves, not after the call.
+- **Action items** with owners pulled straight from the transcript.
+- **Sign-language recognition** that lets gestures join the conversation as text.
+
+## How it works
+
+- Audio is streamed and transcribed continuously, then fed to an LLM with a rolling context window.
+- A separate computer-vision pipeline (TensorFlow + OpenCV) handles the webcam feed for gesture recognition.
+- Summaries and action items are regenerated incrementally so the UI never blocks.
+
+## What I learned
+
+Real-time AI is mostly an exercise in latency budgets. The model quality matters less than how quickly and smoothly you can show *something* useful. Streaming partial results beat waiting for a perfect answer every time.
+
+Accessibility wasn't a feature bolted on at the end — designing for it first made the whole product clearer.

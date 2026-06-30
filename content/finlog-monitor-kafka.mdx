@@ -1,0 +1,29 @@
+---
+title: "Creating a Distributed Log Monitoring System with Kafka & Docker"
+publishedAt: "2025-11-08"
+author: "Sudharsan"
+summary: "How I designed FinLog Monitor, a real-time log processing platform that detects critical system errors instantly using Kafka, Pathway, and Docker."
+image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=192&fit=crop"
+---
+
+# Creating a Distributed Log Monitoring System with Kafka & Docker
+
+When a production system fails, the first question is always *"what happened, and when?"* — and the answer is buried in logs. **FinLog Monitor** is a platform I built to surface critical errors the moment they happen, instead of during the next post-mortem.
+
+## Architecture
+
+- **Kafka** as the backbone — every service publishes logs to topics, decoupling producers from consumers.
+- **Pathway** for streaming analysis, detecting error patterns and anomalies in real time.
+- **Docker** to package every component so the whole stack spins up with one command.
+
+## Why streaming, not batch
+
+Batch jobs tell you about yesterday's outage today. A streaming pipeline lets you alert on a spike in `ERROR` logs within seconds. The trade-off is complexity — you have to reason about ordering, back-pressure, and partitioning.
+
+## What I learned
+
+- **Partitioning is a product decision**, not a config value. Get the key wrong and your consumers stall.
+- **Idempotency saves you** — at-least-once delivery means duplicates *will* arrive.
+- Dockerizing early made the system reproducible for everyone, including future me.
+
+The result: critical errors that used to hide for hours now trigger alerts almost instantly.
