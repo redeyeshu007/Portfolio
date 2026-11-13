@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 const DEFAULT_WORDS = ["Code.", "Create.", "Innovate."];
 
+// Route-specific preloader text. Longest matching prefix wins.
 const ROUTE_WORDS: { prefix: string; words: string[] }[] = [
   { prefix: "/evolution", words: ["Evolution."] },
   { prefix: "/projects", words: ["Projects."] },
@@ -21,60 +22,53 @@ function getWords(pathname: string): string[] {
 
 export default function Preloader() {
   const pathname = usePathname();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const reduceMotion = useReducedMotion();
 
   const words = getWords(pathname);
 
   useEffect(() => {
-    // Only show preloader on the first landing of the session
-    const hasSeen = sessionStorage.getItem("portfolio_preloader_seen");
-    if (hasSeen) {
-      return;
-    }
-
     setLoading(true);
     document.body.style.overflow = "hidden";
 
-    const duration = reduceMotion ? 600 : Math.min(1300, 600 + words.length * 250);
+    const duration = reduceMotion
+      ? 800
+      : Math.min(1900, 800 + words.length * 350);
+
     const timer = setTimeout(() => {
       setLoading(false);
-      try {
-        sessionStorage.setItem("portfolio_preloader_seen", "true");
-      } catch {
-        // ignore storage errors
-      }
     }, duration);
 
     return () => {
       clearTimeout(timer);
       document.body.style.overflow = "";
     };
-  }, [reduceMotion, words.length]);
+  }, [pathname, reduceMotion, words.length]);
 
   return (
     <AnimatePresence
+      mode="wait"
       onExitComplete={() => {
         document.body.style.overflow = "";
       }}
     >
       {loading && (
         <motion.div
-          key="preloader"
+          key={`preloader-${pathname}`}
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-background pointer-events-auto"
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, filter: "blur(6px)" }}
-          transition={{ duration: 0.4, ease: "easeInOut" }}
+          exit={{ opacity: 0, filter: "blur(8px)" }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
         >
           <div className="flex flex-wrap items-baseline justify-center gap-x-3 gap-y-1 px-6 text-center">
             {words.map((word, i) => (
               <motion.span
-                key={word}
+                key={`${word}-${i}`}
                 className="text-4xl font-semibold tracking-tighter text-foreground sm:text-6xl"
                 initial={
                   reduceMotion
                     ? { opacity: 0 }
-                    : { y: 12, opacity: 0, filter: "blur(6px)" }
+                    : { y: 14, opacity: 0, filter: "blur(8px)" }
                 }
                 animate={
                   reduceMotion
@@ -82,8 +76,10 @@ export default function Preloader() {
                     : { y: 0, opacity: 1, filter: "blur(0px)" }
                 }
                 transition={{
-                  duration: 0.4,
-                  delay: (reduceMotion ? 0.05 : 0.15) + i * (reduceMotion ? 0.08 : 0.25),
+                  duration: 0.5,
+                  delay:
+                    (reduceMotion ? 0.05 : 0.2) +
+                    i * (reduceMotion ? 0.1 : 0.35),
                   ease: "easeOut",
                 }}
               >
