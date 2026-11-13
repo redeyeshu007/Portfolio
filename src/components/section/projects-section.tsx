@@ -1,11 +1,22 @@
 import BlurFade from "@/components/magicui/blur-fade";
 import { ProjectCard } from "@/components/project-card";
 import { DATA } from "@/data/resume";
+import { ArrowUpRight } from "lucide-react";
+import Link from "next/link";
 
 const BLUR_FADE_DELAY = 0.04;
 
+const FEATURED_PROJECT_SLUGS = [
+    "ascendo-ai",
+    "mevo-ai",
+    "finlog-monitor",
+    "annam-daan",
+] as const;
+
 export default function ProjectsSection() {
-    const featuredProjects = DATA.projects.slice(0, 4);
+    const featuredProjects = FEATURED_PROJECT_SLUGS
+        .map((slug) => DATA.projects.find((p) => p.slug === slug))
+        .filter((p): p is (typeof DATA.projects)[number] => Boolean(p));
 
     return (
         <section id="projects">
@@ -33,26 +44,32 @@ export default function ProjectsSection() {
                         </p>
                     </div>
                 </div>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 max-w-[800px] mx-auto auto-rows-fr">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 w-full mx-auto auto-rows-fr">
                     {featuredProjects.map((project, id) => (
                         <BlurFade
-                            key={project.title}
+                            key={`${project.slug}-${id}`}
                             delay={BLUR_FADE_DELAY * 12 + id * 0.05}
-                            className="h-full"
+                            className="h-full flex"
                         >
                             <ProjectCard
-                                href={project.href}
-                                key={project.title}
+                                slug={project.slug}
                                 title={project.title}
-                                description={project.description}
-                                dates={project.dates}
-                                tags={project.technologies}
-                                image={project.image}
                                 video={project.video}
-                                links={project.links}
+                                image={project.image}
+                                from="/#projects"
+                                className="w-full"
                             />
                         </BlurFade>
                     ))}
+                </div>
+                <div className="flex justify-center pt-2">
+                    <Link
+                        href="/projects"
+                        className="inline-flex items-center gap-1.5 text-sm font-medium border border-border bg-card hover:bg-accent/50 px-4 py-2 rounded-xl transition-colors group"
+                    >
+                        <span>View all {DATA.projects.length} projects</span>
+                        <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    </Link>
                 </div>
             </div>
         </section>

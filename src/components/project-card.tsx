@@ -1,36 +1,216 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Code2 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
-import Markdown from "react-markdown";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { slugify } from "@/data/resume";
 
-function ProjectImage({ src, alt }: { src: string; alt: string }) {
+function getOptimizedVideoSources(rawUrl: string) {
+  if (rawUrl.includes("res.cloudinary.com") && rawUrl.includes("/video/upload/")) {
+    const videoUrl = rawUrl.includes("/f_auto")
+      ? rawUrl
+      : rawUrl.replace("/video/upload/", "/video/upload/f_auto,q_auto,w_800/");
+    const posterUrl = rawUrl
+      .replace(/\/video\/upload\/(f_auto[^/]+\/)?/, "/video/upload/f_auto,q_auto,w_800,so_0/")
+      .replace(/\.[a-zA-Z0-9]+$/, ".jpg");
+    return { videoUrl, posterUrl };
+  }
+  return { videoUrl: rawUrl, posterUrl: undefined };
+}
+
+export function ProjectVideo({
+  src,
+  title,
+  aspectRatio = "video",
+}: {
+  src: string;
+  title: string;
+  aspectRatio?: "video" | "portrait";
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isInView, setIsInView] = useState(false);
+  const [hasStartedPlaying, setHasStartedPlaying] = useState(false);
+  const [detectedPortrait, setDetectedPortrait] = useState<boolean | null>(null);
+
+  const isPortrait =
+    aspectRatio === "portrait" || detectedPortrait === true;
+
+  const aspectClass = isPortrait ? "aspect-[9/16]" : "aspect-video";
+
+  const { videoUrl, posterUrl } = useMemo(
+    () => getOptimizedVideoSources(src),
+    [src]
+  );
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const intersecting = entry.isIntersecting;
+        setIsInView(intersecting);
+        const video = videoRef.current;
+        if (!video) return;
+
+        if (intersecting) {
+          const playPromise = video.play();
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => setHasStartedPlaying(true))
+              .catch(() => {
+                // Autoplay policy or low power mode handling
+              });
+          }
+        } else {
+          if (!video.paused) {
+            video.pause();
+          }
+        }
+      },
+      { rootMargin: "250px 0px" }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={containerRef}
+      className={cn(
+        "relative w-full h-full bg-neutral-950 dark:bg-black/95 overflow-hidden flex items-center justify-center",
+        aspectClass
+      )}
+    >
+      <video
+        ref={videoRef}
+        src={isInView ? videoUrl : undefined}
+        poster={posterUrl}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload={isInView ? "metadata" : "none"}
+        onLoadedMetadata={(e) => {
+          const v = e.currentTarget;
+          if (v.videoWidth && v.videoHeight && v.videoHeight > v.videoWidth * 1.1) {
+            setDetectedPortrait(true);
+          }
+        }}
+        onPlaying={() => setHasStartedPlaying(true)}
+        className={cn(
+          "w-full h-full object-contain transition-all duration-300 group-hover:scale-[1.01]",
+          hasStartedPlaying ? "opacity-100" : "opacity-95"
+        )}
+        aria-label={`${title} preview video`}
+      />
+    </div>
+  );
+}
+
+function ProjectImage({
+  src,
+  alt,
+  aspectRatio = "video",
+}: {
+  src: string;
+  alt: string;
+  aspectRatio?: "video" | "portrait";
+}) {
   const [imageError, setImageError] = useState(false);
+  const aspectClass =
+    aspectRatio === "portrait" ? "aspect-[9/16]" : "aspect-video";
 
   if (!src || imageError) {
-    return <div className="w-full h-48 bg-muted" />;
+    return (
+      <div
+        className={cn(
+          "w-full bg-neutral-950 dark:bg-black/95 flex flex-col items-center justify-center gap-2 text-muted-foreground/40",
+          aspectClass
+        )}
+      >
+        <Code2 className="size-8 stroke-[1.5]" />
+        <span className="text-xs font-mono tracking-wider uppercase text-muted-foreground/60">
+          Project Preview
+        </span>
+      </div>
+    );
   }
 
   return (
-    <img
-      src={src}
-      alt={alt}
-      className="w-full h-48 object-cover"
-      onError={() => setImageError(true)}
-    />
+    <div
+      className={cn(
+        "w-full h-full bg-neutral-950 dark:bg-black/95 flex items-center justify-center overflow-hidden",
+        aspectClass
+      )}
+    >
+      <img
+        src={src}
+        alt={alt}
+        className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-[1.01]"
+        onError={() => setImageError(true)}
+      />
+    </div>
+  );
+}
+
+function ProjectMedia({
+  video,
+  image,
+  title,
+  aspectRatio = "video",
+}: {
+  video?: string;
+  image?: string;
+  title: string;
+  aspectRatio?: "video" | "portrait";
+}) {
+  if (video) {
+    return (
+      <ProjectVideo
+        src={video}
+        title={title}
+        aspectRatio={aspectRatio}
+      />
+    );
+  }
+  if (image) {
+    return (
+      <ProjectImage
+        src={image}
+        alt={title}
+        aspectRatio={aspectRatio}
+      />
+    );
+  }
+  const aspectClass =
+    aspectRatio === "portrait" ? "aspect-[9/16]" : "aspect-video";
+  return (
+    <div
+      className={cn(
+        "w-full bg-neutral-950 dark:bg-black/95 flex flex-col items-center justify-center gap-2 text-muted-foreground/40",
+        aspectClass
+      )}
+    >
+      <Code2 className="size-8 stroke-[1.5]" />
+      <span className="text-xs font-mono tracking-wider uppercase text-muted-foreground/60">
+        Project Preview
+      </span>
+    </div>
   );
 }
 
 interface Props {
   title: string;
+  slug?: string;
   href?: string;
-  description: string;
-  dates: string;
-  tags: readonly string[];
+  description?: string;
+  dates?: string;
+  tags?: readonly string[];
   link?: string;
   image?: string;
   video?: string;
@@ -40,104 +220,60 @@ interface Props {
     href: string;
   }[];
   className?: string;
+  from?: string;
+  aspectRatio?: "video" | "portrait";
 }
 
 export function ProjectCard({
   title,
-  href,
-  description,
-  dates,
-  tags,
-  link,
+  slug,
   image,
   video,
-  links,
+  from,
   className,
+  aspectRatio = "video",
 }: Props) {
+  const targetSlug = slug || slugify(title);
+  const detailUrl = from
+    ? `/projects/${targetSlug}?from=${encodeURIComponent(from)}`
+    : `/projects/${targetSlug}`;
+
+  const aspectClass =
+    aspectRatio === "portrait" ? "aspect-[9/16]" : "aspect-video";
+
   return (
-    <div
+    <Link
+      href={detailUrl}
       className={cn(
-        "flex flex-col h-full border border-neutral-200 dark:border-neutral-800 rounded-xl overflow-hidden hover:ring-2 cursor-pointer hover:ring-muted transition-all duration-200",
+        "group flex flex-col w-full h-full rounded-2xl border border-border/80 bg-card overflow-hidden transition-all duration-300 hover:border-border hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 cursor-pointer",
         className
       )}
     >
-      <div className="relative shrink-0">
-        <Link
-          href={href || "#"}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block"
-        >
-          {video ? (
-            <video
-              src={video}
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full h-48 object-cover"
-            />
-          ) : image ? (
-            <ProjectImage src={image} alt={title} />
-          ) : (
-            <div className="w-full h-48 bg-muted" />
-          )}
-        </Link>
-        {links && links.length > 0 && (
-          <div className="absolute top-2 right-2 flex flex-wrap gap-2">
-            {links.map((link, idx) => (
-              <Link
-                href={link.href}
-                key={idx}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Badge
-                  className="flex items-center gap-1.5 text-xs bg-black text-white hover:bg-black/90"
-                  variant="default"
-                >
-                  {link.icon}
-                  {link.type}
-                </Badge>
-              </Link>
-            ))}
-          </div>
+      {/* Video Preview */}
+      <div
+        className={cn(
+          "relative w-full overflow-hidden border-b border-border/50 bg-neutral-950 dark:bg-black/95",
+          aspectClass
         )}
+      >
+        <ProjectMedia
+          video={video}
+          image={image}
+          title={title}
+          aspectRatio={aspectRatio}
+        />
       </div>
-      <div className="p-6 flex flex-col gap-3 flex-1">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex flex-col gap-1">
-            <h3 className="font-semibold">{title}</h3>
-            <time className="text-xs text-muted-foreground">{dates}</time>
-          </div>
-          <Link
-            href={href || "#"}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
-            aria-label={`Open ${title}`}
-          >
-            <ArrowUpRight className="h-4 w-4" aria-hidden />
-          </Link>
-        </div>
-        <div className="text-xs flex-1 prose max-w-full text-pretty font-sans leading-relaxed text-muted-foreground dark:prose-invert">
-          <Markdown>{description}</Markdown>
-        </div>
-        {tags && tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-auto">
-            {tags.map((tag) => (
-              <Badge
-                key={tag}
-                className="text-[11px] font-medium border border-border h-6 w-fit px-2"
-                variant="outline"
-              >
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        )}
+
+      {/* Project Title directly below video */}
+      <div className="p-3.5 sm:p-5 flex items-center justify-between gap-2.5 sm:gap-3 flex-1 bg-card">
+        <h3 className="font-semibold text-sm sm:text-base text-foreground tracking-tight group-hover:text-primary transition-colors leading-snug line-clamp-2">
+          {title}
+        </h3>
+        <ArrowUpRight
+          className="size-4 text-muted-foreground opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 shrink-0"
+          aria-hidden
+        />
       </div>
-    </div>
+    </Link>
   );
 }

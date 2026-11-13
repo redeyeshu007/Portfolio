@@ -82,32 +82,30 @@ export default function Page() {
                   href={education.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-x-3 justify-between group"
+                  className="flex items-center gap-3 sm:gap-4 group cursor-pointer transition-colors"
                 >
-                  <div className="flex items-center gap-x-3 flex-1 min-w-0">
-                    {education.logoUrl ? (
-                      <img
-                        src={education.logoUrl}
-                        alt={education.school}
-                        className="size-8 md:size-10 p-1 border rounded-full shadow ring-2 ring-border overflow-hidden object-contain flex-none"
-                      />
-                    ) : (
-                      <div className="size-8 md:size-10 p-1 border rounded-full shadow ring-2 ring-border bg-muted flex-none" />
-                    )}
-                    <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-                      <div className="text-sm font-semibold leading-none flex items-center gap-2">
-                        {education.school}
-                        <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" aria-hidden />
+                  {education.logoUrl ? (
+                    <img
+                      src={education.logoUrl}
+                      alt={education.school}
+                      className="size-8 md:size-10 p-1 border rounded-full shadow ring-2 ring-border overflow-hidden object-contain flex-none"
+                    />
+                  ) : (
+                    <div className="size-8 md:size-10 p-1 border rounded-full shadow ring-2 ring-border bg-muted flex-none" />
+                  )}
+                  <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-sm sm:text-base font-semibold leading-snug flex items-center gap-1.5 text-foreground truncate">
+                        <span className="truncate">{education.school}</span>
+                        <ArrowUpRight className="size-3.5 text-muted-foreground opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 shrink-0" aria-hidden />
                       </div>
-                      <div className="font-sans text-sm text-muted-foreground">
-                        {education.degree}
-                      </div>
+                      <span className="text-[11px] sm:text-xs tabular-nums text-muted-foreground shrink-0 text-right">
+                        {education.start} - {education.end}
+                      </span>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-1 text-xs tabular-nums text-muted-foreground text-right flex-none">
-                    <span>
-                      {education.start} - {education.end}
-                    </span>
+                    <div className="font-sans text-xs sm:text-sm text-muted-foreground truncate">
+                      {education.degree}
+                    </div>
                   </div>
                 </Link>
               </BlurFade>
@@ -116,16 +114,16 @@ export default function Page() {
         </div>
       </section>
       <section id="skills">
-        <div className="flex min-h-0 flex-col gap-y-4">
+        <div className="flex min-h-0 flex-col gap-y-3 sm:gap-y-4">
           <BlurFade delay={BLUR_FADE_DELAY * 9}>
             <h2 className="text-xl font-bold">Skills</h2>
           </BlurFade>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {DATA.skills.map((skill, id) => (
               <BlurFade key={skill.name} delay={BLUR_FADE_DELAY * 10 + id * 0.05}>
-                <div className="border bg-background border-border ring-2 ring-border/20 rounded-xl h-8 w-fit px-4 flex items-center gap-2">
-                  {skill.icon && <skill.icon className="size-4 rounded overflow-hidden object-contain" />}
-                  <span className="text-foreground text-sm font-medium">{skill.name}</span>
+                <div className="border bg-background border-border ring-2 ring-border/20 rounded-xl min-h-[30px] sm:min-h-8 h-auto w-fit px-2.5 sm:px-3.5 py-1 sm:py-1.5 flex items-center gap-1.5 sm:gap-2 transition-colors hover:border-primary/40">
+                  {skill.icon && <skill.icon className="size-3.5 sm:size-4 rounded overflow-hidden object-contain shrink-0" />}
+                  <span className="text-foreground text-xs sm:text-sm font-medium leading-none whitespace-nowrap">{skill.name}</span>
                 </div>
               </BlurFade>
             ))}

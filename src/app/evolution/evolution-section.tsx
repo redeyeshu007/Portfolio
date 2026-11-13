@@ -62,25 +62,31 @@ const evolutionData = [
     label: "2026",
     title: "The Comeback",
     description:
-      "AI stopped being a buzzword and became a lens. Built AI-powered products, won hackathons, worked with real clients, and joined Javix Technologies as a Full Stack Developer Intern. The gap between idea and execution shrank every week.",
+      "Transitioned from building prototypes to shipping full-scale enterprise software and production AI systems. Competed against thousands nationally to place in the Top 1% of the AWS ML Challenge and secured multiple hackathon podiums. Joined Javix Technologies as a Full Stack Developer Intern, delivering live client solutions across e-commerce, healthcare, and construction management.",
     skills: [
-      "TensorFlow",
-      "OpenCV",
+      "Next.js 15",
+      "React 19",
+      "TypeScript",
+      "Python",
+      "Django 5",
       "Spring Boot",
-      "Flutter",
       "Kafka",
+      "Docker",
+      "PostgreSQL",
       "Generative AI",
       "AI Agents",
-      "Firebase",
     ],
     projects: [
-      "AI-Powered Web Platform",
-      "Computer Vision System",
-      "Full-Stack Mobile Application",
+      "Ascendo AI",
+      "Handoverly AI",
+      "EastGold",
+      "Aura Clinic",
+      "Peralagae",
+      "FinLog Monitor",
     ],
     achievement:
-      "Won hackathons, delivered AI products, and joined Javix Technologies.",
-    lesson: "Ownership changes everything about how you build.",
+      "Top 1% in AWS ML Challenge, 2nd Place at Robovanza & HackVerse, and Full Stack Developer Intern at Javix Technologies.",
+    lesson: "Ownership and shipping for real users changes everything about how you build.",
   },
   {
     id: "future",
@@ -90,15 +96,15 @@ const evolutionData = [
     description:
       "The ambition doesn't compress into a year. Building larger AI systems, contributing to meaningful products, and laying the groundwork for a technology-driven business. The best code I'll ever write hasn't been written yet.",
     skills: [
-      "Advanced AI Systems",
-      "Distributed Architecture",
-      "Product Engineering",
-      "Innovation Design",
+      "Autonomous AI Systems",
+      "Distributed Cloud Architecture",
+      "Enterprise Product Engineering",
+      "Venture Incubation",
     ],
     projects: [
-      "Large-Scale AI Platform",
-      "Open Source Contributions",
-      "Technology Business",
+      "Large-Scale Autonomous AI Systems",
+      "Distributed Event-Driven Architecture",
+      "Technology Ventures & Startups",
     ],
     achievement: "The next milestone is being earned right now.",
     lesson: "Build with purpose. Technology is the means, not the end.",
@@ -308,7 +314,7 @@ function EvolutionCard({ data }: { data: (typeof evolutionData)[number] }) {
 /* ── MAIN SECTION ──────────────────────────────────────────────────────── */
 
 export default function EvolutionSection() {
-  const [activeId, setActiveId] = useState("2023");
+  const [activeId, setActiveId] = useState("2026");
   const activeIndex = evolutionData.findIndex((d) => d.id === activeId);
   const activeData = evolutionData[activeIndex];
 

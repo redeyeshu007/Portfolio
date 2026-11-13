@@ -26,6 +26,8 @@ export function MediaContainer({
           src={src}
           className="w-full h-full object-cover object-center max-w-full max-h-full"
           controls
+          preload="metadata"
+          playsInline
         />
       )}
     </div>
